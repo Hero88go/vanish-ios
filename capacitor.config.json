@@ -1,0 +1,11 @@
+{
+  "appId": "com.geekmagnetinc.vanish",
+  "appName": "Vanish",
+  "webDir": "www",
+  "ios": {
+    "packageClassList": [
+      "AdMobPlugin",
+      "ICloudSyncPlugin"
+    ]
+  }
+}
