@@ -6,6 +6,11 @@ workflows:
     integrations:
       app_store_connect: Codemagic2
     environment:
+      ios_signing:
+        provisioning_profiles:
+          - vanish-profile
+        certificates:
+          - shared-distribution
       vars:
         XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
@@ -14,32 +19,15 @@ workflows:
       node: 22
       xcode: latest
     scripts:
-      - name: Set up code signing
-        script: |
-          set -ex
-          echo "=== ENV ==="
-          env | grep -iE 'app_store|APP_STORE|APPLE' || echo "NO APP_STORE-related env vars"
-          echo ""
-          which app-store-connect
-          app-store-connect --version
-          echo ""
-          keychain initialize
-          echo ""
-          echo "=== fetch-signing-files ==="
-          app-store-connect fetch-signing-files "$BUNDLE_ID" \
-            --type IOS_APP_STORE \
-            --create \
-            --verbose 2>&1
-          echo ""
-          echo "=== Provisioning Profiles dir ==="
-          ls -la "$HOME/Library/MobileDevice/Provisioning Profiles/" 2>&1 || echo "(empty)"
-          echo ""
-          keychain add-certificates
-          xcode-project use-profiles
       - name: npm install + cap sync
         script: |
           npm install --no-optional
           npx cap sync ios
+      - name: Set up signing from uploaded cert + profile
+        script: |
+          keychain initialize
+          keychain add-certificates
+          xcode-project use-profiles
       - name: Auto-increment build number
         script: |
           cd "$CM_BUILD_DIR/ios/App"
