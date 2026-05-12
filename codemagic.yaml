@@ -16,10 +16,24 @@ workflows:
     scripts:
       - name: Set up code signing
         script: |
+          set -ex
+          echo "=== ENV ==="
+          env | grep -iE 'app_store|APP_STORE|APPLE' || echo "NO APP_STORE-related env vars"
+          echo ""
+          which app-store-connect
+          app-store-connect --version
+          echo ""
           keychain initialize
+          echo ""
+          echo "=== fetch-signing-files ==="
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
-            --create
+            --create \
+            --verbose 2>&1
+          echo ""
+          echo "=== Provisioning Profiles dir ==="
+          ls -la "$HOME/Library/MobileDevice/Provisioning Profiles/" 2>&1 || echo "(empty)"
+          echo ""
           keychain add-certificates
           xcode-project use-profiles
       - name: npm install + cap sync
