@@ -199,8 +199,8 @@ z-index:100;opacity:0;transition:opacity .3s;pointer-events:none;
 <div class="word-stage" id="wordStage"></div>
 <div class="input-area" id="inputArea" style="display:none">
 <div class="input-row">
-<input type="text" id="wordInput" placeholder="type a word and press enter" autocomplete="off" autocapitalize="off" spellcheck="false">
-<button onclick="G.submitWord()">ENTER</button>
+<input type="text" id="wordInput" placeholder="type the words you remember (space separated)" autocomplete="off" autocapitalize="off" spellcheck="false">
+<button onclick="G.submitWord()">SUBMIT</button>
 </div>
 <div class="submitted-words" id="submittedWords"></div>
 </div>
@@ -514,9 +514,8 @@ function submitWord(){
 const input=$('wordInput');
 const raw=input.value.trim().toLowerCase();
 input.value='';
-if(!raw)return;
 // Allow space-separated batch
-const parts=raw.split(/\s+/);
+const parts=raw?raw.split(/\s+/):[];
 parts.forEach(w=>{
 if(!w||submittedSet.has(w))return;
 submittedSet.add(w);
@@ -528,12 +527,8 @@ if(currentWords.includes(w)){tag.classList.add('correct');Audio.play('type')}
 else{tag.classList.add('wrong');Audio.play('type')}
 $('submittedWords').appendChild(tag);
 });
-input.focus();
-// Auto-advance if all found
-const correct=submittedWords.filter(w=>currentWords.includes(w));
-if(correct.length===currentWords.length){
+// One guess per round — always end after submit, even if input was empty
 setTimeout(()=>endRound(),300);
-}
 }
 
 function endRound(){
